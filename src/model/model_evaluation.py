@@ -158,13 +158,28 @@ def main():
             # Infer the signature
             signature = infer_signature(input_example, model.predict(X_test_tfidf[:5]))  # <--- Added for signature
 
-            # Log model with signature
+            # # Log model with signature
+            # mlflow.sklearn.log_model(
+            #     model,
+            #     "lgbm_model",
+            #     signature=signature,  # <--- Added for signature
+            #     input_example=input_example  # <--- Added input example
+            # )
+
+            import joblib  # Add this at the top if not already
+
+            # Log MLflow model (recommended for model serving)
             mlflow.sklearn.log_model(
                 model,
                 "lgbm_model",
-                signature=signature,  # <--- Added for signature
-                input_example=input_example  # <--- Added input example
+                signature=signature,
+                input_example=input_example
             )
+
+            # Save the plain .pkl model manually as artifact (makes it visible at root level)
+            model_file = "lgbm_model.pkl"
+            joblib.dump(model, model_file)
+            mlflow.log_artifact(model_file)
 
             # Save model info
             model_path = "lgbm_model"
